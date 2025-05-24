@@ -1,110 +1,128 @@
-import {useState} from "react";
+// Components/GetShipment.jsx
+import React, { useState, useContext } from "react";
+import { TrackingContext } from "../Conetxt/Tracking";
 
-export default ({ getModel, setGetModel, getShipment}) =>{
-  const [index, setIndex]=useState(0);
-  const [singleShipmentData, setSingleShipmentData] = useState();
-
-  const getshipmentData = async ()=>{
-    const getData = await getShipment(index);
-    setSingleShipmentData(getData);
-    console.log(getData);
-
-  };
-  console.log(singleShipmentData);
-
-  const converTime =(time) => {
-    const newTime=new Date(time);
-    const dataTime=new Intl.DateTimeFormat("en-US",{
-      year:"numeric",
-      month:"2-digit",
-      day: "2-digit",
-    }).format(newTime);
-
-    return dataTime;
-
-  };
-  return getModel ? (
-    <div className="fixed inset-0 z-0 overflow-y-auto">
-      <div 
-        className="fixed inset-0 w-full h-full bg-black opacity-40"
-        onClick={()=>setGetModel(false)}
-        ></div>
-
-        <div className="flex items-center min-h-screen px-4 py-8">
-        <div className="relative w-full max-w-lg p-4 mx-auto bg-white rounded-md
-        shadow-lg">
-          <div className="flex justify-end">
-            <button
-               className="p-2 text-gray-400 rounded-md hover:bg-gray-100"
-               onClick={()=>setGetModel(false)}
-               >
-      <svg
-      xmlns="http://www.w3.org/2000/svg"
-      className="w-5 h-5 mx-auto"
-      viewBox="0 0 20 20"
-      fill="currentColor"
-    >
-      <path
-        fillRule="evenodd"
-        d="M4.293 4.293a1 1 0 011.414 0L10 8.586l4.293-4.293a1 1 0 111.414 1.414L11.414 10l4.293 4.293a1 1 0 01-1.414 1.414L10 11.414l-4.293 4.293a1 1 0 01-1.414-1.414L8.586 10 4.293 5.707a1 1 0 010-1.414z"
-        clipRule="evenodd"
-      />
-    </svg>
-
-               </button>
-          </div>
-
-          <div className="max-w-sm mx-auto py-3 space-y-3 text-center">
-            <h4 className="text-lg font-medium text-gray-800">
-              Product Tracking Details
-            </h4>
-            <form onSubmit={(e)=>e.preventDefault()}>
-              <div className="relative mt-3">
-                <input
-                type="number"
-                placeholder="Id"
-                className="w-full pl-5 pr-3 py-2 text-gray-500 bg-transparent
-                outline-none border-indigo-600 shadow-sm rounded-lg"
-                onChange={(e)=>setIndex(e.target.value)}
-                />
-              </div>
-              <button
-                onClick={()=>getshipmentData()}
-                className="block w-full mt-3 py-3 px-4 font-medium text-sm text-center
-                text-white bg-indigo-600 hover:bg-indigo-500 active:bg-indigo-700
-                rounded-lg ring-offset-2 ring-indigo-600 focus:ring-2"
-                >
-                  Get details
-                </button>
-            </form>
-            {singleShipmentData ==undefined ? (
-              ""
-            ):(
-              <div className="text-left">
-                <p>Sender: {singleShipmentData.sender.slice(0,25)}...</p>
-                <p>Receiver: {singleShipmentData.receiver.slice(0,25)}...</p>
-                <p>PickupTime: {converTime(singleShipmentData.pickupTime)}</p>
-                <p>DeliveryTime: {converTime(singleShipmentData.deliveryTime)}</p>
-                <p>Distance: {singleShipmentData.distance}</p>
-                <p>Price: {singleShipmentData.price}</p>
-                <p>Status: {singleShipmentData.status}</p>
-                <p>
-                  paid:{" "}
-                  {singleShipmentData.isPaid ? "Complete" : "Not Complete"}
-
-                </p>
-                </div>
-
-            )}
-          </div>
-        </div>
-
-        </div>
-    </div>
-    
-  ) :(
-    ""
-  );
-
-
+const STATUS_MAP = {
+  0: "PENDING",
+  1: "IN_TRANSIT",
+  2: "DELIVERED",
 };
+
+export default function GetShipmentModal({ getModel, setGetModel }) {
+  const { getShipment, currentUser } = useContext(TrackingContext);
+
+  const [index, setIndex] = useState("");
+  const [shipment, setShipment] = useState(null);
+  const [loading, setLoading] = useState(false);
+  const [error, setError] = useState("");
+
+  const handleGet = async () => {
+    if (!currentUser) return alert("Please connect your wallet first");
+    if (index === "") return alert("Enter an index");
+
+    setLoading(true);
+    setError("");
+    try {
+      const data = await getShipment(parseInt(index, 10));
+      setShipment(data);
+    } catch (err) {
+      console.error(err);
+      setError("Failed to fetch shipment");
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const fmtDate = (ms) =>
+    new Intl.DateTimeFormat("en-US", {
+      year: "numeric",
+      month: "2-digit",
+      day: "2-digit",
+      hour: "2-digit",
+      minute: "2-digit",
+    }).format(new Date(ms));
+
+  if (!getModel) return null;
+  return (
+    <div className="fixed inset-0 z-10 overflow-y-auto">
+      {/* backdrop */}
+      <div
+        className="fixed inset-0 bg-black opacity-40"
+        onClick={() => setGetModel(false)}
+      />
+
+      {/* modal */}
+      <div className="flex items-center justify-center min-h-screen px-4">
+        <div className="relative w-full max-w-md p-6 bg-white rounded shadow-lg">
+          {/* close button */}
+          <button
+            className="absolute top-4 right-4 text-gray-500 hover:text-gray-700"
+            onClick={() => setGetModel(false)}
+          >
+            ✕
+          </button>
+
+          <h3 className="text-xl font-semibold mb-4">Get Shipment</h3>
+
+          {/* input + button */}
+          <div className="flex space-x-2 mb-4">
+            <input
+              type="number"
+              min="0"
+              value={index}
+              onChange={(e) => setIndex(e.target.value)}
+              placeholder="Index"
+              className="flex-1 border px-3 py-2 rounded"
+            />
+            <button
+              onClick={handleGet}
+              disabled={loading}
+              className={`px-4 py-2 rounded text-white ${
+                loading ? "bg-gray-400" : "bg-indigo-600 hover:bg-indigo-500"
+              }`}
+            >
+              {loading ? "Loading…" : "Fetch"}
+            </button>
+          </div>
+
+          {error && <p className="text-sm text-red-500 mb-2">{error}</p>}
+
+          {/* results */}
+          {shipment && (
+            <div className="space-y-2 text-gray-800">
+              <p>
+                <strong>Sender:</strong> {shipment.sender}
+              </p>
+              <p>
+                <strong>Receiver:</strong> {shipment.receiver}
+              </p>
+              <p>
+                <strong>Pickup:</strong> {fmtDate(shipment.pickupTime)}
+              </p>
+              <p>
+                <strong>Delivery:</strong>{" "}
+                {shipment.deliveryTime > 0
+                  ? fmtDate(shipment.deliveryTime)
+                  : "—"}
+              </p>
+              <p>
+                <strong>Distance:</strong> {shipment.distance} m
+              </p>
+              <p>
+                <strong>Price:</strong> {shipment.price} ETH
+              </p>
+              <p>
+                <strong>Status:</strong>{" "}
+                {STATUS_MAP[shipment.status] ?? shipment.status}
+              </p>
+              <p>
+                <strong>Paid:</strong>{" "}
+                {shipment.isPaid ? "✅ Yes" : "❌ No"}
+              </p>
+            </div>
+          )}
+        </div>
+      </div>
+    </div>
+  );
+}

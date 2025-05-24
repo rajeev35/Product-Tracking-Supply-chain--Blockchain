@@ -1,64 +1,58 @@
-import { Fot1, Fot2} from "../Components/index";
-export default ()=>{
-  const footerNavs=[
+import React from 'react';
+import Link from 'next/link';
+import { Fot1, Fot2 } from '../Components';
 
-    {
-
-      href: "javascript:void()",
-      name: "Terms",
-    },
-        {
-
-          href: "javascript:void()",
-          name: "License",
-        },
-        {
-          href: "javascript:void()",
-          name: "Privacy",
-
-        },
-        {
-          href: "javascript:void()",
-          name: "About us",
-        },
-
+export default function Footer() {
+  const footerNavs = [
+    { href: '#', name: 'Terms' },
+    { href: '#', name: 'License' },
+    { href: '#', name: 'Privacy' },
+    { href: '#', name: 'About Us' },
   ];
-  return(
 
-    <footer className="pt-10">
-      <div className="max-w-screen-xl mx-auto px-4 text-gray-600 md:px-8">
-        <div className="justify-between sm:flex">
-          <div className="space-y-6">
-            <img src="https://www.floatui.com/logo.svg" className="w-32"/>
-            <p className="max-w-md">
-              jhgfsdffghjkl';lkjhjghfgfhghjkl;lkjhgfdfghjk
+  return (
+    <footer className="bg-gray-50 border-t mt-16">
+      <div className="max-w-screen-xl mx-auto px-4 md:px-8 py-12">
+        <div className="flex flex-col md:flex-row justify-between gap-8">
+          {/* Brand + Links */}
+          <div className="flex flex-col space-y-6">
+            <Link href="/" className="inline-block text-2xl font-bold text-indigo-600">
+              MyDapp
+            </Link>
+            <p className="text-gray-600 max-w-md">
+              Transparent, blockchain-based shipment tracking you can trust. Secure, end-to-end visibility for every step of your supply chain.
             </p>
-            <ul className="flex flex-wrap items-center gap-4 text-sm sm:text-base">
-              {footerNavs.map((item, idx)=>(
-              <li className="text-gray-800 hover:text-gray-500 duration-150">
-                <a key={idx} href={item.href}>
+            <div className="flex flex-wrap gap-4 text-sm">
+              {footerNavs.map((item, idx) => (
+                <Link
+                  key={idx}
+                  href={item.href}
+                  className="text-gray-700 hover:text-indigo-600 transition"
+                >
                   {item.name}
-                </a>
-              </li>
+                </Link>
               ))}
-            </ul>
+            </div>
           </div>
-          <div className="mt-6">
-            <p className="text-gray-700 font-semibold">Get the app</p>
-            <div className="flex items-center gap-3 mt-3 sm:block">
-              <a href="javascript:void()">
-                <Fot1/>
-              </a>
-              <a href="javascript:void()" className="mt-0 block sm:mt-3">
-                <Fot2/>
-              </a>
+
+          {/* App Download */}
+          <div className="flex flex-col space-y-4">
+            <p className="text-gray-700 font-semibold text-center">Get the app</p>
+            <div className="flex space-x-4">
+              <Link href="#" className="block w-32 h-auto">
+                <Fot1 className="w-full h-full" />
+              </Link>
+              <Link href="#" className="block w-32 h-auto">
+                <Fot2 className="w-full h-full" />
+              </Link>
             </div>
           </div>
         </div>
-        <div className="mt-10 py-10 border-t md:text-center">
-          <p>2023 Rajeev Kumar all rights reserved.</p>
+
+        <div className="mt-12 text-center text-gray-500 text-sm">
+          &copy; {new Date().getFullYear()} Rajeev Kumar. All rights reserved.
         </div>
       </div>
     </footer>
   );
-};
+}

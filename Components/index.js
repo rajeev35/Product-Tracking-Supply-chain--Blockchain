@@ -7,6 +7,9 @@ import GetShipment from "./GetShipment";
 import CompleteShipment from "./CompleteShipment";
 import StartShipment from "./StartShipment";
 import Table from "./Table";
+import SendShipment from "./SendShipment";
+import ShipCount from "./ShipmentsCount";
+
 
 import Nav1 from "./SVG/Nav1";
 import Nav2 from "./SVG/Nav2";
@@ -25,6 +28,8 @@ export{
     GetShipment,
     CompleteShipment,
     StartShipment,
+    SendShipment,
+    ShipCount,  
 
     Nav1,
     Nav2,

@@ -1,88 +1,106 @@
-export default ({setCreateShipmentModel, allShipmentsdata})=>
-{
-  const converTime =(time)=>{
-    const newTime = new Date(time);
-    const dataTime = new Intl.DateTimeFormat("en-US",{
-      year:"numeric",
-      month: "2-digit",
-      day: "2-digit",
+import React from 'react';
 
-    }).format(newTime);
-    return dataTime;
+export default function Table({ setCreateShipmentModel, allShipmentsdata }) {
+  const formatDateTime = (ms) => {
+    const dt = new Date(ms);
+    return new Intl.DateTimeFormat('en-GB', {
+      day: '2-digit',
+      month: 'short',
+      year: 'numeric',
+      hour: '2-digit',
+      minute: '2-digit',
+    }).format(dt);
   };
 
-  console.log(allShipmentsdata);
-  return(
-    <div className="max-w-screen-xl mx-auto px-4 md:px-8">
-      <div className="items-start justify-between md:flex">
-       <div className="max-w-lg">
-        <h3 className="text-gray-800 text-xl font-bold sm:text-2xl">
-          Create Tracking
-        </h3>
-        <p className="text-gray-600 mt-2">
-          lkljhgsfghnelagv hjlm.asd vsaghnsmj.
-        </p>
-       </div> 
-       <div className="mt-3 md:mt-0">
-        <p
-          onClick={()=>setCreateShipmentModel(true)}
-          href="javascript:void(0)"
-          className="inline-block px-4 py-2 text-white duration-150 font-medium
-          bg-gray-800 hover:bg-gray-700 active:bg-gray-900 md:text-sm rounded-lg
-          md:inline-flex"
-          >
-            Add Tracking
-          </p>
-       </div>
+  const statusBadge = (status) => {
+    const map = {
+      0: { text: 'Pending',    bg: 'bg-yellow-100', textColor: 'text-yellow-800' },
+      1: { text: 'In Transit', bg: 'bg-blue-100',   textColor: 'text-blue-800'   },
+      2: { text: 'Delivered',  bg: 'bg-green-100',  textColor: 'text-green-800'  },
+    };
+    const { text, bg, textColor } = map[status] || {};
+    return (
+      <span className={`${bg} ${textColor} px-2 py-1 rounded-full text-xs font-medium`}>
+        {text}
+      </span>
+    );
+  };
+
+  return (
+    <div className="max-w-screen-xl mx-auto px-4 md:px-8 mt-8">
+      <div className="flex items-center justify-between mb-4">
+        <h2 className="text-2xl font-bold text-gray-800">Shipments</h2>
+        <button
+          onClick={() => setCreateShipmentModel(true)}
+          className="inline-flex items-center px-4 py-2 bg-indigo-600 text-white font-medium rounded-lg hover:bg-indigo-500 transition"
+        >
+          Add Tracking
+        </button>
       </div>
-      <div className="mt-12 shadow-sm border rounded-lg overflow-x-auto">
-        <table className="w-full table-auto text-sm text-left">
-          <thead className="bg-gray-50 text-gray-600 font-medium border-b">
+
+      <div className="overflow-x-auto bg-white rounded-lg shadow">
+        <table className="min-w-full table-auto divide-y divide-gray-200">
+          <thead className="bg-gray-50">
             <tr>
-              <th className="py-3 px-6">Sender</th>
-              <th className="py-3 px-6">Receiver</th>
-              <th className="py-3 px-6">Pickup Time</th>
-              <th className="py-3 px-6">Distance</th>
-              <th className="py-3 px-6">Price</th>
-              <th className="py-3 px-6">Delivery Time</th>
-              <th className="py-3 px-6">Paid</th>
-              <th className="py-3 px-6">Status</th>
+              <th className="sticky top-0 px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                Sender
+              </th>
+              <th className="sticky top-0 px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                Receiver
+              </th>
+              <th className="sticky top-0 px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                Pickup Time
+              </th>
+              <th className="sticky top-0 px-6 py-3 text-center text-xs font-medium text-gray-500 uppercase tracking-wider">
+                Distance (km)
+              </th>
+              <th className="sticky top-0 px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase tracking-wider">
+                Price (ETH)
+              </th>
+              <th className="sticky top-0 px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                Delivery Time
+              </th>
+              <th className="sticky top-0 px-6 py-3 text-center text-xs font-medium text-gray-500 uppercase tracking-wider">
+                Paid
+              </th>
+              <th className="sticky top-0 px-6 py-3 text-center text-xs font-medium text-gray-500 uppercase tracking-wider">
+                Status
+              </th>
             </tr>
           </thead>
-          <tbody className="text-gray-600 divide-y">
-            {allShipmentsdata?.map((shipment, idx)=>(
-              <tr key={idx}>
-                <td className="px-6 py-4 whitespace-nowrap">
+          <tbody className="bg-white divide-y divide-gray-200">
+            {allShipmentsdata?.map((shipment, idx) => (
+              <tr key={idx} className="hover:bg-gray-50">
+                <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-700">
                   {shipment.sender.slice(0, 15)}...
                 </td>
-                <td className="px-6 py-4 whitespace-nowrap">
+                <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-700">
                   {shipment.receiver.slice(0, 15)}...
                 </td>
-
-                <td className="px-6 py-4 whitespace-nowrap ">
-                  {converTime(shipment.pickupTime)}
+                <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-700">
+                  {formatDateTime(shipment.pickupTime)}
                 </td>
-                <td className="px-6 py-4 whitespace-nowrap ">
-                  {shipment.distance} Km
+                <td className="px-6 py-4 whitespace-nowrap text-center text-sm text-gray-700">
+                  {shipment.distance}
                 </td>
-                <td className="px-6 py-4 whitespace-nowrap ">
-                  {shipment.price}
+                <td className="px-6 py-4 whitespace-nowrap text-right text-sm text-gray-700">
+                  {parseFloat(shipment.price).toFixed(4)}
                 </td>
-                <td className="px-6 py-4 whitespace-nowrap ">
-                  {shipment.deliveryTime}
+                <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-700">
+                  {shipment.deliveryTime > 0
+                    ? formatDateTime(shipment.deliveryTime)
+                    : '–'}
                 </td>
-                <td className="px-6 py-4 whitespace-nowrap ">
-                  {shipment.isPaid ? "Completed" : "Not Complete"}
+                <td className="px-6 py-4 whitespace-nowrap text-center">
+                  {shipment.isPaid ? (
+                    <span className="text-green-600 font-semibold">Yes</span>
+                  ) : (
+                    <span className="text-red-600 font-semibold">No</span>
+                  )}
                 </td>
-                <td className="px-6 py-4 whitespace-nowrap ">
-                  {shipment.status ==0
-                      ? "Pending"
-                      : shipment.status==1
-                      ? "IN_TRANSIT"
-                      :"Delivered"}
+                <td className="px-6 py-4 whitespace-nowrap text-center">
+                  {statusBadge(shipment.status)}
                 </td>
-
-
               </tr>
             ))}
           </tbody>
@@ -90,4 +108,4 @@ export default ({setCreateShipmentModel, allShipmentsdata})=>
       </div>
     </div>
   );
-};
+}
