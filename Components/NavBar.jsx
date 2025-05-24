@@ -1,103 +1,121 @@
-import {useEffect, useState, useContext} from "react";
-import { TrackingContext} from "../Conetxt/Tracking";
-import{Nav1, Nav2, Nav3} from "../Components/index";
-export default()=>{
-  const[state, setState]= useState(false);
-  const{currentUser, connectWallet} = useContext(TrackingContext);
+import React, { useState, useEffect, useContext } from 'react';
+import Link from 'next/link';
+import { TrackingContext } from '../Conetxt/Tracking';
+import { Nav1, Nav2, Nav3 } from '../Components';
 
-  const navigation =[
-    {
-      title:"Home", path: "#"
-    },
+export default function NavBar() {
+  const [isOpen, setIsOpen] = useState(false);
+  const { currentUser, connectWallet } = useContext(TrackingContext);
 
-    {title: "Services", path: "#"},
-    {title: "Contact Us", path: "#"},
-    {title: "Erc20", path: "#"},
+  const navItems = [
+    { title: 'Home', path: '/' },
+    { title: 'ERC20 Generator', path: '/erc20' },
   ];
 
-  useEffect(()=>{
+  useEffect(() => {
+    function handleOutsideClick(e) {
+      if (!e.target.closest('.menu-btn') && !e.target.closest('.mobile-menu')) {
+        setIsOpen(false);
+      }
+    }
+    document.addEventListener('click', handleOutsideClick);
+    return () => document.removeEventListener('click', handleOutsideClick);
+  }, []);
 
-    document.onClick = (e) =>{
+  const shortAddr = currentUser
+    ? `${currentUser.slice(0, 6)}...${currentUser.slice(-4)}`
+    : null;
 
-      const target = e.target;
-      if(!target.closest(".menu-btn")) setState(false);
-
-    };
-  },[]
-  );
   return (
-    <nav
-      className={`bg-white pb-5 md:text-sm ${
-        state
-        ? "shadow-lg rounded-xl border mx-2 mt-2 md:shadow-none md:border-none md:mx-2 md:mt-0"
-        : ""
-      }`}
-    >
-    <div className="gap-x-14 items-center max-w-screen-xl mx-auto px-4 md:flex md:px-8">
-      <div className = "flex items-center justify-between py-5 md:block">
-        <a href ="javascript:void(0)">
+    <nav className="bg-white shadow-md">
+      <div className="max-w-screen-xl mx-auto px-4 md:px-8">
+        <div className="flex items-center justify-between h-16">
+          {/* Logo */}
+          <Link href="/" className="text-2xl font-bold text-indigo-600">
+            MyDapp
+          </Link>
 
-          <img
-          src="https://www.floatui.com/logo.svg"
-          width={120}
-          height={50}
-          alt="Float UI logo"
-          />
-        </a>
-
-        <div className= "md:hidden">
-
-          <button 
-            className="menu-btn text-gray-500 hover:text-gray-800"
-            onClick={()=>setState(!state)}
-            >
-              {state ? <Nav1 /> : <Nav2 />}
-            </button>
-        </div>
-      </div>
-
-      <div 
-      className = {`flex-1 items-center mt-8 md:mt-0 md:flex ${
-        state ? "block" : "hidden"
-      } `}
-      >
-        <ul className ="justify-center items-center space-y-6 md:flex md:space-x-6
-        md:space-y-0">
-        {navigation.map((item, idx)=>{
-          return (
-            <li key={idx} className="text-gray-700 hover:text-gray-900">
-              <a href={item.path} className = "block">
+          {/* Desktop Links */}
+          <div className="hidden md:flex space-x-6">
+            {navItems.map((item) => (
+              <Link
+                key={item.title}
+                href={item.path}
+                className="text-gray-700 hover:text-indigo-600 transition"
+              >
                 {item.title}
-              </a>
-            </li>
-          );
-        })}
-        </ul>
+              </Link>
+            ))}
+          </div>
 
-        <div className ="flex-1 gap-x-6 items-center justify-end mt-6 space-y-6
-        md:flex md:space-y-0 md:mt-0">
-        {currentUser ? (
-          <p className="flex items-center justify-center gap-x-1 py-2 px-4 text-white font-medium
-          bg-gray-800 hover:bg-gray-700 active:bg-gray-900 rounded-full md:inline-flex">
-          {currentUser.slice(0, 25)}..
-          </p>
-        ) : (
-          <button
-          onClick={()=> connectWallet()}
-          className="flex items-center justify-center gap-x-1 py-2 px-4
-          text-white font-medium bg-gray-800 hover:bg-gray-700 active:bg-gray-900
-          rounded-full md:inline-flex"
-          >
-            Connect Wallet
-            <Nav3/>
+          {/* Desktop Connect */}
+          <div className="hidden md:flex items-center space-x-4">
+            {currentUser ? (
+              <span className="inline-flex items-center px-4 py-2 bg-indigo-600 text-white rounded-full text-sm">
+                {shortAddr}
+              </span>
+            ) : (
+              <button
+                onClick={connectWallet}
+                className="flex items-center gap-2 px-4 py-2 bg-indigo-600 text-white rounded-full text-sm hover:bg-indigo-500 transition"
+              >
+                Connect Wallet <Nav3 className="w-4 h-4" />
+              </button>
+            )}
+          </div>
 
-          </button>
+          {/* Mobile Connect & Menu */}
+          <div className="md:hidden flex items-center space-x-3">
+            {currentUser ? (
+              <span className="inline-flex items-center px-3 py-1 bg-indigo-600 text-white rounded-full text-sm">
+                {shortAddr}
+              </span>
+            ) : (
+              <button
+                onClick={connectWallet}
+                className="flex items-center gap-2 px-3 py-2 bg-indigo-600 text-white rounded-full text-sm hover:bg-indigo-500 transition"
+              >
+                Connect Wallet <Nav3 className="w-4 h-4" />
+              </button>
+            )}
+            <button
+              className="menu-btn p-2 text-gray-600 hover:text-gray-800"
+              onClick={() => setIsOpen(!isOpen)}
+            >
+              {isOpen ? <Nav1 className="w-6 h-6" /> : <Nav2 className="w-6 h-6" />}
+            </button>
+          </div>
+        </div>
+
+        {/* Mobile Menu */}
+        {isOpen && (
+          <div className="mobile-menu md:hidden mt-2 space-y-2 pb-4 border-t">
+            {navItems.map((item) => (
+              <Link
+                key={item.title}
+                href={item.path}
+                className="block px-4 py-2 text-gray-700 hover:bg-gray-100 rounded"
+              >
+                {item.title}
+              </Link>
+            ))}
+            <div className="px-4">
+              {currentUser ? (
+                <span className="block px-4 py-2 bg-indigo-600 text-white rounded-full text-center text-sm">
+                  {shortAddr}
+                </span>
+              ) : (
+                <button
+                  onClick={connectWallet}
+                  className="w-full flex items-center justify-center gap-2 px-4 py-2 bg-indigo-600 text-white rounded-full text-sm hover:bg-indigo-500 transition"
+                >
+                  Connect Wallet <Nav3 className="w-4 h-4" />
+                </button>
+              )}
+            </div>
+          </div>
         )}
       </div>
-    </div>
-    </div>
     </nav>
-    
   );
-
-};
+}
