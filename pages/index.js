@@ -1,5 +1,6 @@
-import React, {useState, useEffect, useContext} from "react";
-import{
+// pages/index.jsx
+import React, { useState, useEffect, useContext } from "react";
+import {
   Table,
   Form,
   Services,
@@ -7,12 +8,13 @@ import{
   CompleteShipment,
   GetShipment,
   StartShipment,
-  
-} from "../Components/index";
-import {TrackingContext} from "../Conetxt/Tracking";
-const index= ()=>{
+  SendShipment,
+  ShipCount,            // ← import the new component
+} from "../Components";
+import { TrackingContext } from "../Conetxt/Tracking";
 
-  const{
+export default function Dashboard() {
+  const {
     currentUser,
     createShipment,
     getAllShipment,
@@ -20,79 +22,84 @@ const index= ()=>{
     getShipment,
     startShipment,
     getShipmentsCount,
+  } = useContext(TrackingContext);
 
+  // State for each modal
+  const [sendModel, setSendModel] = useState(false);
+  const [createShipmentModel, setCreateShipmentModel] = useState(false);
+  const [openProfile, setOpenProfile] = useState(false);
+  const [startModel, setStartModel] = useState(false);
+  const [completeModal, setCompleteModal] = useState(false);
+  const [getModel, setGetModel] = useState(false);
+  const [countModel, setCountModel] = useState(false);  // ← count modal
 
-
-  } = useContext (TrackingContext);
-
-  const[createShipmentModel, setCreateShipmentModel] = useState(false);
-  const[openProfile, setOpenProfile] = useState(false);
-  const[startModal, setStartModal] = useState(false);
-  const[completeModal, setCompleteModal] = useState(false);
-  const[getModel, setGetModel] = useState(false);
-  const[allShipmentsdata, setallShipmentsdata] = useState();
+  const [allShipmentsData, setAllShipmentsData] = useState([]);
 
   useEffect(() => {
-
-    const getCampaignsData = getAllShipment();
-    return async() => {
-
-      const allData = await getCampaignsData;
-      setallShipmentsdata(allData);
-    };
-  }, []
-  );
+    async function fetchData() {
+      const data = await getAllShipment();
+      setAllShipmentsData(data);
+    }
+    fetchData();
+  }, [getAllShipment]);
 
   return (
     <>
-       <Services
-        setOpenProfile={setOpenProfile}
+      <Services
+        setSendModel={setSendModel}
         setCompleteModal={setCompleteModal}
         setGetModel={setGetModel}
-        setStartModal= {setStartModal}
-    />
-    <Table
-      setCreateShipmentModel= {setCreateShipmentModel}
-      allShipmentsdata={allShipmentsdata}
+        setStartModel={setStartModel}
+        setOpenProfile={setOpenProfile}
+        setCountModel={setCountModel}         // ← pass it here
       />
 
-      <Form 
+      <Table
+        setCreateShipmentModel={setCreateShipmentModel}
+        allShipmentsdata={allShipmentsData}
+      />
+
+      <Form
         createShipmentModel={createShipmentModel}
-        createShipment = {createShipment}
-        setCreateShipmentModel= {setCreateShipmentModel}
+        createShipment={createShipment}
+        setCreateShipmentModel={setCreateShipmentModel}
       />
 
       <Profile
-       openProfile={openProfile}
-       setOpenProfile={setOpenProfile}
-       currentUser={currentUser}
-       getShipmentCount={getShipmentsCount}
-       />
+        openProfile={openProfile}
+        setOpenProfile={setOpenProfile}
+        currentUser={currentUser}
+        getShipmentCount={getShipmentsCount}
+      />
 
-       <CompleteShipment
-         completeModal={completeModal}
-         setCompleteModal={setCompleteModal}
-         completeShipment={completeShipment}
-         />
+      <CompleteShipment
+        completeModal={completeModal}
+        setCompleteModal={setCompleteModal}
+        completeShipment={completeShipment}
+      />
 
-       <GetShipment
+      <GetShipment
         getModel={getModel}
         setGetModel={setGetModel}
         getShipment={getShipment}
-        />
+      />
 
-        <StartShipment
-         startModal={startModal}
-         setStartModal={setStartModal}
-         startShipment={startShipment}
-         />
+      <StartShipment
+        startModel={startModel}
+        setStartModel={setStartModel}
+        startShipment={startShipment}
+      />
 
+      <SendShipment
+        sendModel={sendModel}
+        setSendModel={setSendModel}
+      />
 
-
-
+      {/* Render the ShipCount modal */}
+      <ShipCount
+        countModel={countModel}
+        setCountModel={setCountModel}
+      />
     </>
   );
-
-};
-
-export default index;
+}
